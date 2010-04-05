@@ -1,0 +1,15 @@
+E-Mail - Redirect Bounce
+
+Introduction
+----------------------------------------
+Tis is plugin for roundcube
+Allow to redirect (a.k.a. "bounce") mail messages to other
+
+Ticket #1485774 http://trac.roundcube.net/ticket/1485774
+
+Contact
+----------------------------------------
+This is my first plugin, so please let me know what you think about it!
+Comments and suggestions are welcome.
+
+Email: dns.sobol@gmail.com
