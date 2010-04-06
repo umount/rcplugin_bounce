@@ -105,11 +105,10 @@ class bounce extends rcube_plugin
     } else {
       if ($rcmail->config->get('smtp_log')) {
         $log_entry = sprintf("User %s [%s]; Message for %s; %s",
-          date("d-M-Y H:i:s O", mktime()),
           $rcmail->user->get_username(),
           $_SERVER['REMOTE_ADDR'],
           $mailto,
-          !empty($smtp_response) ? join('; ', $smtp_response) : '');
+          "SMTP status: ".join("\n", $smtp_response));
           write_log('sendmail', $log_entry);
       }
       $rcmail->output->command('sent_successfully', 'confirmation', rcube_label('messagebounced'));
