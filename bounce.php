@@ -74,7 +74,7 @@ class bounce extends rcube_plugin
       $recent['Bcc'] = $mailcc;
     $recent['Message-Id'] = sprintf('<%s@%s>', md5(uniqid('rcmail'.mt_rand(),true)), $rcmail->config->mail_domain($_SESSION['imap_host']));
     $recent['Date'] = date('r');
-    if (!empty($CONFIG['useragent']))
+    if ($rcmail->config->get('useragent'))
       $recent['User-Agent'] = $rcmail->config->get('useragent');
 
     foreach($recent as $k=>$v){
@@ -103,17 +103,14 @@ class bounce extends rcube_plugin
         $rcmail->output->show_message('sendingfailed', 'error');
       $rcmail->output->send();
     } else {
-      if ($CONFIG['smtp_log']) {
-        write_log('sendmail', sprintf("User %s [%s]; Message for %s; %s",
+      if ($rcmail->config->get('smtp_log')) {
+        $log_entry = sprintf("User %s [%s]; Message for %s; %s",
           date("d-M-Y H:i:s O", mktime()),
           $rcmail->user->get_username(),
           $_SERVER['REMOTE_ADDR'],
           $mailto,
-          !empty($smtp_response) ? join('; ', $smtp_response) : ''));
-      }
-      if ($fp = @fopen($rcmail->config->get('log_dir').'/sendmail', 'a')) {
-        fwrite($fp, $log_entry);
-        fclose($fp);
+          !empty($smtp_response) ? join('; ', $smtp_response) : '');
+          write_log('sendmail', $log_entry);
       }
       $rcmail->output->command('sent_successfully', 'confirmation', rcube_label('messagebounced'));
       $rcmail->output->send();
