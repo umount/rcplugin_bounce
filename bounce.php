@@ -81,8 +81,10 @@ class bounce extends rcube_plugin
        $recent_headers .= "Recent-$k: $v\n";
     }
 
-    $msg_body = rcube_charset_convert($rcmail->imap->get_message_part($msg_uid), RCMAIL_CHARSET, $headers_old->charset);
+    $msg_body = $rcmail->imap->get_raw_body($msg_uid);
     $headers = $recent_headers.$rcmail->imap->get_raw_headers($msg_uid);
+    $a_body = preg_split('/[\r\n]+$/sm', $msg_body);
+    for ($i=1,$body='';$i<=count($a_body);$body .= trim($a_body[$i])."\r\n\r\n",$i++)
 
     /* need decision for DKIM-Signature */
     /* $headers = preg_replace('/^DKIM-Signature/sm','Content-Description',$headers); */
@@ -90,7 +92,7 @@ class bounce extends rcube_plugin
     if (!is_object($rcmail->smtp))
       $rcmail->smtp_init(true);
 
-    $sent = $rcmail->smtp->send_mail('', $a_recipients, $headers, $msg_body);
+    $sent = $rcmail->smtp->send_mail('', $a_recipients, $headers, $body);
     $smtp_response = $rcmail->smtp->get_response();
     $smtp_error = $rcmail->smtp->get_error();
 
