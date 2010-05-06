@@ -20,6 +20,11 @@
   padding: 5px 10px 10px 10px;
 }
 
+.bounce-body .field
+{
+  width:170px;
+}
+
 #bounce-box input.button
 {
   margin-top: 8px;
