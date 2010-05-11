@@ -111,7 +111,7 @@ class bounce extends rcube_plugin
           "SMTP status: ".join("\n", $smtp_response));
           write_log('sendmail', $log_entry);
       }
-      $rcmail->output->command('sent_successfully', 'confirmation', rcube_label('messagebounced'));
+      $rcmail->output->command('display_message', $this->gettext('messagebounced'), 'confirmation');
       $rcmail->output->send();
     }
   }
