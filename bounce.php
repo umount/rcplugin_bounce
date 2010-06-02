@@ -130,13 +130,13 @@ class bounce extends rcube_plugin
     $table = new html_table(array('cols' => 2));
 
     $table->add('title', rcube_label('to') .': ');
-    $table->add(null, html::tag('input', array('type' => "text", 'name' => '_to', 'value' => '', 'maxlength' => '30', 'class' => 'field')));
+    $table->add(null, html::tag('input', array('type' => "text", 'name' => '_to', 'value' => '', 'maxlength' => '30', 'class' => 'field' , 'onclick' => 'rcmail.message_list.blur()')));
 
     $table->add('title', rcube_label('cc') .': ');
-    $table->add(null, html::tag('input', array('type' => "text", 'name' => '_cc', 'value' => '', 'maxlength' => '30', 'class' => 'field')));
+    $table->add(null, html::tag('input', array('type' => "text", 'name' => '_cc', 'value' => '', 'maxlength' => '30', 'class' => 'field' , 'onclick' => 'rcmail.message_list.blur()')));
 
     $table->add('title', rcube_label('bcc') .': ');
-    $table->add(null, html::tag('input', array('type' => "text", 'name' => '_bcc', 'value' => '', 'maxlength' => '30', 'class' => 'field')));
+    $table->add(null, html::tag('input', array('type' => "text", 'name' => '_bcc', 'value' => '', 'maxlength' => '30', 'class' => 'field' , 'onclick' => 'rcmail.message_list.blur()')));
 
     $target_url = $_SERVER['REQUEST_URI'];
 
