@@ -66,7 +66,7 @@ class bounce extends rcube_plugin
       $a_recipients['Bcc'] = $mailbcc;
 
     $recent = array();
-    $recent['From'] = $headers_old->to;
+    $recent['From'] = $headers_old->to." <".$headers_old->to.">";
     $recent['To'] = $mailto;
     if (!empty($mailcc))
       $recent['Cc'] = $mailcc;
