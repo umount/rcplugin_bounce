@@ -154,7 +154,7 @@ class bounce extends rcube_plugin
         )
       )
     ));
-
+    $rcmail->output->add_label('norecipientwarning');
     $rcmail->output->add_gui_object('bouncebox', $attrib['id']);
     $rcmail->output->add_gui_object('bounceform', 'bounceform');
 
