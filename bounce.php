@@ -31,6 +31,7 @@ class bounce extends rcube_plugin
             'domain'  =>  $this->ID,
             'imagepas' => $skin_path.'/bounce_pas.png',
             'imageact' => $skin_path.'/bounce_act.png',
+            'class' => 'bounce-ico'
         ),
         'toolbar');
 
