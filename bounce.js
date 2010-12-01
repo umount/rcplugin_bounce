@@ -34,7 +34,11 @@ function rcmail_bounce_send(prop) {
   } else {
     // all checks passed, send message
     lock = rcmail.set_busy(true, 'sendingmessage');
-    rcmail.http_post('plugin.bounce', '_uid='+uid+'&_to='+input_to+'&_cc='+input_cc+'&_bcc='+input_bcc, lock);
+    rcmail.http_post('plugin.bounce', '_uid='+uid+
+                                      '&_to='+urlencode(input_to)+
+                                      '&_cc='+urlencode(input_cc)+
+                                      '&_bcc='+urlencode(input_bcc)+
+                                      '&_mbox='+urlencode(rcmail.env.mailbox), lock);
     $('#bounce-box').hide();
     return true;
   }

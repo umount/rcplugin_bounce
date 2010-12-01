@@ -44,6 +44,8 @@ class bounce extends rcube_plugin
   function request_action() {
     $this->add_texts('localization');
     $msg_uid = get_input_value('_uid', RCUBE_INPUT_POST);
+    $mbox = get_input_value('_mbox', RCUBE_INPUT_POST);
+
     $rcmail = rcmail::get_instance();
 
     $this->email_format_error = NULL;
@@ -53,6 +55,8 @@ class bounce extends rcube_plugin
     $mailto = $this->rcmail_email_input_format(get_input_value('_to', RCUBE_INPUT_POST, TRUE, $message_charset), true);
     $mailcc = $this->rcmail_email_input_format(get_input_value('_cc', RCUBE_INPUT_POST, TRUE, $message_charset), true);
     $mailbcc = $this->rcmail_email_input_format(get_input_value('_bcc', RCUBE_INPUT_POST, TRUE, $message_charset), true);
+
+    //error_log("msg_uid - $msg_uid, mailto-$mailto, mailcc-$mailcc, mailbcc-$mailbcc \n",3,"/var/log/nginx/checkmail_error.log");
 
     if ($this->email_format_error) {
       $rcmail->output->show_message('emailformaterror', 'error', array('email' => $this->email_format_error));
@@ -85,8 +89,13 @@ class bounce extends rcube_plugin
        $recent_headers .= "Recent-$k: $v\n";
     }
 
+    $rcmail->imap->set_mailbox($mbox);
+
     $msg_body = $rcmail->imap->get_raw_body($msg_uid);
-    $headers = $recent_headers.$rcmail->imap->get_raw_headers($msg_uid);
+
+    $headers = $rcmail->imap->get_raw_headers($msg_uid);
+    $headers = $recent_headers.$headers;
+
     $a_body = preg_split('/[\r\n]+$/sm', $msg_body);
     $c_body = count($a_body);
     for ($i=1,$body='';$i<=$c_body;$body .= trim($a_body[$i])."\r\n\r\n",$i++)
@@ -96,6 +105,8 @@ class bounce extends rcube_plugin
 
     if (!is_object($rcmail->smtp))
       $rcmail->smtp_init(true);
+
+    //error_log($rcmail->imap->get_raw_headers($msg_uid)." $msg_uid\n",3,"/var/log/nginx/checkmail_error.log");
 
     $sent = $rcmail->smtp->send_mail('', $a_recipients, $headers, $body);
     $smtp_response = $rcmail->smtp->get_response();
