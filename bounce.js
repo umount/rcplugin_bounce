@@ -50,6 +50,12 @@ function autoload() {
   }
 }
 
+/* Fix for roundcube patch Changeset 4224*/
+function select_field(input){
+  rcmail.message_list.blur();
+  input.focus();
+}
+
 // callback for app-onload event
 if (window.rcmail) {
   rcmail.addEventListener('init', function(evt) {
