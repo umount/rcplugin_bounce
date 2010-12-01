@@ -41,10 +41,19 @@ function rcmail_bounce_send(prop) {
   }
 }
 
+function autoload() {
+  var input_to = $("[name='_to']"),
+  ac_fields = ['cc', 'bcc'];
+  rcmail.init_address_input_events(input_to);
+  for (var i in ac_fields) {
+    rcmail.init_address_input_events($("[name='_"+ac_fields[i]+"']"));
+  }
+}
+
 // callback for app-onload event
 if (window.rcmail) {
   rcmail.addEventListener('init', function(evt) {
-
+    autoload();
     // register command (directly enable in message view mode)
     rcmail.register_command('plugin.bounce.box', rcmail_bounce_box, rcmail.env.uid);
     rcmail.register_command('plugin.bounce.send', rcmail_bounce_send, rcmail.env.uid);
