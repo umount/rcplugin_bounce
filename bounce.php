@@ -141,13 +141,13 @@ class bounce extends rcube_plugin
     $table->add('title', html::a(array('href'=>'#cc', 'onclick'=>'return rcmail_ui.hide_header_form(\'cc\')'),
                              html::img(array('src'=>$rcmail->config->get('skin_path').'/images/icons/minus.gif', 'title'=>rcube_label('delete'), 'alt'=>rcube_label('delete')))).'&nbsp;'.
                              html::label('_cc', Q(rcube_label('cc'))));
-    $table->add(null, html::tag('textarea', array('spellcheck' =>'false', 'id' => '_cc', 'name' => '_cc', 'cols' => '50', 'rows'=> '2',  'value' => '', 'class' => 'editfield', 'onclick' => 'rcmail.message_list.blur()')));
+    $table->add(null, html::tag('textarea', array('spellcheck' =>'false', 'id' => '_cc', 'name' => '_cc', 'cols' => '50', 'rows'=> '2',  'value' => '', 'class' => 'editfield', 'onclick' => 'select_field(this)')));
 
     $table->set_row_attribs(array('id'=>'compose-bcc'));
     $table->add('title', html::a(array('href'=>'#bcc', 'onclick'=>'return rcmail_ui.hide_header_form(\'bcc\')'),
                              html::img(array('src'=>$rcmail->config->get('skin_path').'/images/icons/minus.gif', 'title'=>rcube_label('delete'), 'alt'=>rcube_label('delete')))).'&nbsp;'.
                              html::label('_bcc', Q(rcube_label('bcc'))));
-    $table->add(null, html::tag('textarea', array('spellcheck' =>'false', 'id' => '_bcc', 'cols' => '50', 'name' => '_bcc', 'rows'=> '2',  'value' => '', 'class' => 'editfield', 'onclick' => 'rcmail.message_list.blur()')));
+    $table->add(null, html::tag('textarea', array('spellcheck' =>'false', 'id' => '_bcc', 'cols' => '50', 'name' => '_bcc', 'rows'=> '2',  'value' => '', 'class' => 'editfield', 'onclick' => 'select_field(this)')));
 
 
     $table->add(null,null);

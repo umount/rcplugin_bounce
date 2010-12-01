@@ -27,7 +27,6 @@ function rcmail_bounce_send(prop) {
 
   // check for empty recipient
   var recipients = input_to;
-  alert(recipients);
   if (!rcube_check_email(recipients.replace(/^\s+/, '').replace(/[\s,;]+$/, ''), true)) {
     alert(rcmail.get_label('norecipientwarning'));
     input_to.focus();
