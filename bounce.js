@@ -1,6 +1,6 @@
 /*
  * Bounce plugin script
- * @version 1.01
+ * @version 1.1
  * @author Denis Sobolev
  */
 
@@ -21,20 +21,21 @@ function rcmail_bounce_send(prop) {
   else
     var uid = rcmail.get_single_uid();
 
-  var input_to  = rcube_find_object('_to').value;
-  var input_cc  = rcube_find_object('_cc').value;
-  var input_bcc = rcube_find_object('_bcc').value;
+  var input_to  = $('#_to').val();
+  var input_cc  = $('#_cc').val();
+  var input_bcc = $('#_bcc').val();
 
   // check for empty recipient
   var recipients = input_to;
+  alert(recipients);
   if (!rcube_check_email(recipients.replace(/^\s+/, '').replace(/[\s,;]+$/, ''), true)) {
     alert(rcmail.get_label('norecipientwarning'));
     input_to.focus();
     return false;
   } else {
     // all checks passed, send message
-    rcmail.set_busy(true, 'sendingmessage');
-    rcmail.http_post('plugin.bounce', '_uid='+uid+'&_to='+input_to+'&_cc='+input_cc+'&_bcc='+input_bcc, true);
+    lock = rcmail.set_busy(true, 'sendingmessage');
+    rcmail.http_post('plugin.bounce', '_uid='+uid+'&_to='+input_to+'&_cc='+input_cc+'&_bcc='+input_bcc, lock);
     $('#bounce-box').hide();
     return true;
   }
@@ -56,4 +57,3 @@ if (window.rcmail) {
       });
   })
 }
-

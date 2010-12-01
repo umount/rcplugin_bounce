@@ -6,12 +6,13 @@
  * Allow to redirect (a.k.a. "bounce") mail messages to other
  * Ticket #1485774 http://trac.roundcube.net/ticket/1485774
  *
- * @version 1.0
+ * @version 1.1
  * @author Denis Sobolev
  */
 class bounce extends rcube_plugin
 {
   public $task = 'mail';
+  private $email_format_error, $recipient_count;
 
   function init()
   {
@@ -40,22 +41,24 @@ class bounce extends rcube_plugin
     }
   }
 
-  function request_action()
-  {
+  function request_action() {
     $this->add_texts('localization');
-
     $msg_uid = get_input_value('_uid', RCUBE_INPUT_POST);
-
     $rcmail = rcmail::get_instance();
-    //$rcmail->output->reset();
 
-    $mailto_regexp = array('/[,;]\s*[\r\n]+/', '/[\r\n]+/', '/[,;]\s*$/m', '/;/');
-    $mailto_replace = array(', ', ', ', '', ',');
+    $this->email_format_error = NULL;
+    $this->recipient_count = 0;
 
-    // replace new lines and strip ending ', '
-    $mailto = preg_replace($mailto_regexp, $mailto_replace, get_input_value('_to', RCUBE_INPUT_POST));
-    $mailcc = preg_replace($mailto_regexp, $mailto_replace, get_input_value('_cc', RCUBE_INPUT_POST));
-    $mailbcc  = preg_replace($mailto_regexp, $mailto_replace, get_input_value('_bcc', RCUBE_INPUT_POST));
+    $message_charset = $rcmail->output->get_charset();
+    $mailto = $this->rcmail_email_input_format(get_input_value('_to', RCUBE_INPUT_POST, TRUE, $message_charset), true);
+    $mailcc = $this->rcmail_email_input_format(get_input_value('_cc', RCUBE_INPUT_POST, TRUE, $message_charset), true);
+    $mailbcc = $this->rcmail_email_input_format(get_input_value('_bcc', RCUBE_INPUT_POST, TRUE, $message_charset), true);
+
+    if ($this->email_format_error) {
+      $rcmail->output->show_message('emailformaterror', 'error', array('email' => $this->email_format_error));
+      $rcmail->output->send('iframe');
+      exit;
+    }
 
     $headers_old = $rcmail->imap->get_headers($msg_uid);
 
@@ -85,7 +88,8 @@ class bounce extends rcube_plugin
     $msg_body = $rcmail->imap->get_raw_body($msg_uid);
     $headers = $recent_headers.$rcmail->imap->get_raw_headers($msg_uid);
     $a_body = preg_split('/[\r\n]+$/sm', $msg_body);
-    for ($i=1,$body='';$i<=count($a_body);$body .= trim($a_body[$i])."\r\n\r\n",$i++)
+    $c_body = count($a_body);
+    for ($i=1,$body='';$i<=$c_body;$body .= trim($a_body[$i])."\r\n\r\n",$i++)
 
     /* need decision for DKIM-Signature */
     /* $headers = preg_replace('/^DKIM-Signature/sm','Content-Description',$headers); */
@@ -130,14 +134,27 @@ class bounce extends rcube_plugin
     $submit = new html_inputfield(array('type' => 'submit'));
     $table = new html_table(array('cols' => 2));
 
-    $table->add('title', rcube_label('to') .': ');
-    $table->add(null, html::tag('input', array('type' => "text", 'name' => '_to', 'value' => '', 'maxlength' => '30', 'class' => 'field' , 'onclick' => 'rcmail.message_list.blur()')));
+    $table->add('title', html::label('_to', Q(rcube_label('to'))));
+    $table->add('editfield', html::tag('textarea', array('spellcheck' =>'false', 'id' => '_to', 'cols' => '50', 'rows'=> '2',  'value' => '', 'onclick' => 'rcmail.message_list.blur()')));
 
-    $table->add('title', rcube_label('cc') .': ');
-    $table->add(null, html::tag('input', array('type' => "text", 'name' => '_cc', 'value' => '', 'maxlength' => '30', 'class' => 'field' , 'onclick' => 'rcmail.message_list.blur()')));
+    $table->set_row_attribs(array('id'=>'compose-cc'));
+    $table->add('title', html::a(array('href'=>'#cc', 'onclick'=>'return rcmail_ui.hide_header_form(\'cc\')'),
+                             html::img(array('src'=>$rcmail->config->get('skin_path').'/images/icons/minus.gif', 'title'=>rcube_label('delete'), 'alt'=>rcube_label('delete')))).'&nbsp;'.
+                             html::label('_cc', Q(rcube_label('cc'))));
+    $table->add(null, html::tag('textarea', array('spellcheck' =>'false', 'id' => '_cc', 'cols' => '50', 'rows'=> '2',  'value' => '', 'class' => 'editfield', 'onclick' => 'rcmail.message_list.blur()')));
 
-    $table->add('title', rcube_label('bcc') .': ');
-    $table->add(null, html::tag('input', array('type' => "text", 'name' => '_bcc', 'value' => '', 'maxlength' => '30', 'class' => 'field' , 'onclick' => 'rcmail.message_list.blur()')));
+    $table->set_row_attribs(array('id'=>'compose-bcc'));
+    $table->add('title', html::a(array('href'=>'#bcc', 'onclick'=>'return rcmail_ui.hide_header_form(\'bcc\')'),
+                             html::img(array('src'=>$rcmail->config->get('skin_path').'/images/icons/minus.gif', 'title'=>rcube_label('delete'), 'alt'=>rcube_label('delete')))).'&nbsp;'.
+                             html::label('_bcc', Q(rcube_label('bcc'))));
+    $table->add(null, html::tag('textarea', array('spellcheck' =>'false', 'id' => '_bcc', 'cols' => '50', 'rows'=> '2',  'value' => '', 'class' => 'editfield', 'onclick' => 'rcmail.message_list.blur()')));
+
+
+    $table->add(null,null);
+    $table->add(formlinks,
+                html::a(array('href'=>'#cc', 'onclick'=>'return rcmail_ui.show_header_form(\'cc\')', 'id'=>'cc-link'), Q(rcube_label('addcc'))).
+                '<span class="separator">|</span>'.
+                html::a(array('href'=>'#bcc', 'onclick'=>'return rcmail_ui.show_header_form(\'bcc\')', 'id'=>'bcc-link'), Q(rcube_label('addbcc'))));
 
     $target_url = $_SERVER['REQUEST_URI'];
 
@@ -160,6 +177,64 @@ class bounce extends rcube_plugin
     $rcmail->output->add_gui_object('bounceform', 'bounceform');
 
     $this->include_stylesheet('bounce.css');
+  }
 
+
+  /*
+   * Used modified function from steps/mail/sendmail.inc
+   */
+  private function rcmail_email_input_format($mailto, $count=false, $check=true) {
+
+    $regexp = array('/[,;]\s*[\r\n]+/', '/[\r\n]+/', '/[,;]\s*$/m', '/;/', '/(\S{1})(<\S+@\S+>)/U');
+    $replace = array(', ', ', ', '', ',', '\\1 \\2');
+
+    // replace new lines and strip ending ', ', make address input more valid
+    $mailto = trim(preg_replace($regexp, $replace, $mailto));
+
+    $result = array();
+    $items = rcube_explode_quoted_string(',', $mailto);
+
+    foreach($items as $item) {
+      $item = trim($item);
+      // address in brackets without name (do nothing)
+      if (preg_match('/^<\S+@\S+>$/', $item)) {
+        $item = idn_to_ascii($item);
+        $result[] = $item;
+      // address without brackets and without name (add brackets)
+      } else if (preg_match('/^\S+@\S+$/', $item)) {
+        $item = idn_to_ascii($item);
+        $result[] = '<'.$item.'>';
+      // address with name (handle name)
+      } else if (preg_match('/\S+@\S+>*$/', $item, $matches)) {
+        $address = $matches[0];
+        $name = str_replace($address, '', $item);
+        $name = trim($name);
+        if ($name && ($name[0] != '"' || $name[strlen($name)-1] != '"')
+            && preg_match('/[\(\)\<\>\\\.\[\]@,;:"]/', $name)) {
+            $name = '"'.addcslashes($name, '"').'"';
+        }
+        $address = idn_to_ascii($address);
+        if (!preg_match('/^<\S+@\S+>$/', $address))
+          $address = '<'.$address.'>';
+
+        $result[] = $name.' '.$address;
+        $item = $address;
+      } else if (trim($item)) {
+        continue;
+      }
+
+      // check address format
+      $item = trim($item, '<>');
+      if ($item && $check && !check_email($item)) {
+        $this->email_format_error = $item;
+        return;
+      }
+    }
+
+    if ($count) {
+      $this->recipient_count += count($result);
+    }
+
+    return implode(', ', $result);
   }
 }
