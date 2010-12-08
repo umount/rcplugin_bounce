@@ -146,7 +146,7 @@ class bounce extends rcube_plugin
     $table = new html_table(array('cols' => 2, 'id' => 'form'));
 
     $table->add('title', html::label('_to', Q(rcube_label('to'))));
-    $table->add('editfield', html::tag('textarea', array('spellcheck' =>'false', 'id' => '_to', 'name' => '_to', 'cols' => '50', 'rows'=> '2', 'tabindex' => '2', 'onclick' => 'select_field(this)')));
+    $table->add('editfield', html::tag('textarea', array('spellcheck' =>'false', 'id' => '_to', 'name' => '_to', 'cols' => '50', 'rows'=> '2', 'tabindex' => '2', 'class' => 'editfield', 'onclick' => 'select_field(this)')));
 
     $table->set_row_attribs(array('id'=>'compose-cc'));
     $table->add('title', html::a(array('href'=>'#cc', 'onclick'=>'return rcmail_ui.hide_header_form(\'cc\')'),
