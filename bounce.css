@@ -5,6 +5,7 @@
   top: 200px;
   left: 250px;
   width: 550px;
+  z-index: 99;
 }
 
 .bounce-title
