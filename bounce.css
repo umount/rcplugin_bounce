@@ -1,6 +1,7 @@
 #bounce-box
 {
   position: absolute;
+  display: none;
   top: 200px;
   left: 250px;
   width: 550px;
