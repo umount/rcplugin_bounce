@@ -73,20 +73,20 @@ class bounce extends rcube_plugin
     if (!empty($mailbcc))
       $a_recipients['Bcc'] = $mailbcc;
 
-    $recent = array();
-    $recent['From'] = $headers_old->to." <".$headers_old->to.">";
-    $recent['To'] = $mailto;
+    $resent = array();
+    $resent['From'] = $headers_old->to." <".$headers_old->to.">";
+    $resent['To'] = $mailto;
     if (!empty($mailcc))
-      $recent['Cc'] = $mailcc;
+      $resent['Cc'] = $mailcc;
     if (!empty($mailbcc))
-      $recent['Bcc'] = $mailcc;
-    $recent['Message-Id'] = sprintf('<%s@%s>', md5(uniqid('rcmail'.mt_rand(),true)), $rcmail->config->mail_domain($_SESSION['imap_host']));
-    $recent['Date'] = date('r');
+      $resent['Bcc'] = $mailcc;
+    $resent['Message-Id'] = sprintf('<%s@%s>', md5(uniqid('rcmail'.mt_rand(),true)), $rcmail->config->mail_domain($_SESSION['imap_host']));
+    $resent['Date'] = date('r');
     if ($rcmail->config->get('useragent'))
-      $recent['User-Agent'] = $rcmail->config->get('useragent');
+      $resent['User-Agent'] = $rcmail->config->get('useragent');
 
-    foreach($recent as $k=>$v){
-       $recent_headers .= "Recent-$k: $v\n";
+    foreach($resent as $k=>$v){
+       $resent_headers .= "Resent-$k: $v\n";
     }
 
     $rcmail->imap->set_mailbox($mbox);
@@ -94,7 +94,7 @@ class bounce extends rcube_plugin
     $msg_body = $rcmail->imap->get_raw_body($msg_uid);
 
     $headers = $rcmail->imap->get_raw_headers($msg_uid);
-    $headers = $recent_headers.$headers;
+    $headers = $resent_headers.$headers;
 
     $a_body = preg_split('/[\r\n]+$/sm', $msg_body);
     $c_body = count($a_body);
