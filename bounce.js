@@ -55,7 +55,9 @@ function autoload() {
 
 /* Fix for roundcube patch Changeset 4224*/
 function select_field(input){
-  rcmail.message_list.blur();
+  if ( typeof rcmail.message_list  !== 'undefined' ) {
+    rcmail.message_list.blur();
+  }
   input.focus();
 }
 
