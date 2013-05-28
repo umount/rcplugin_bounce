@@ -64,22 +64,17 @@ class bounce extends rcube_plugin
       exit;
     }
 
-    $headers_old = $rcmail->imap->get_headers($msg_uid);
-
+    $headers_old = $rcmail->storage->get_message_headers($msg_uid);
     $a_recipients = array();
     $a_recipients['To'] = $mailto;
-    if (!empty($mailcc))
-      $a_recipients['Cc'] = $mailcc;
-    if (!empty($mailbcc))
-      $a_recipients['Bcc'] = $mailbcc;
+    if (!empty($mailcc)) $a_recipients['Cc'] = $mailcc;
+    if (!empty($mailbcc)) $a_recipients['Bcc'] = $mailbcc;
 
     $resent = array();
     $resent['From'] = $headers_old->to." <".$headers_old->to.">";
     $resent['To'] = $mailto;
-    if (!empty($mailcc))
-      $resent['Cc'] = $mailcc;
-    if (!empty($mailbcc))
-      $resent['Bcc'] = $mailcc;
+    if (!empty($mailcc)) $resent['Cc'] = $mailcc;
+    if (!empty($mailbcc)) $resent['Bcc'] = $mailcc;
     $resent['Message-Id'] = sprintf('<%s@%s>', md5(uniqid('rcmail'.mt_rand(),true)), $rcmail->config->mail_domain($_SESSION['imap_host']));
     $resent['Date'] = date('r');
     if ($rcmail->config->get('useragent'))
@@ -89,7 +84,7 @@ class bounce extends rcube_plugin
        $resent_headers .= "Resent-$k: $v\n";
     }
 
-    $rcmail->imap->set_mailbox($mbox);
+    $rcmail->storage->set_folder($mbox);
 
     $msg_body = $rcmail->imap->get_raw_body($msg_uid);
 
